@@ -46,6 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FlightSchool.cs" />
+    <Compile Include="FS_GameStates.cs" />
+    <Compile Include="FS_GUI.cs" />
+    <Compile Include="FS_PersistenceData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

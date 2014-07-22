@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using KSP;
 
@@ -30,9 +29,24 @@ namespace FlightSchool
 
         public void Start()
         {
-            FS_PersistenceModuleSaver.ApplyScenarioToSave();
+           // FS_PersistenceModuleSaver.ApplyScenarioToSave();
             FSGS.gui.showMainGUI = true;
+            FSGS.Log(StageRecoveryManager.StageRecoveryAvailable);
+            if (StageRecoveryManager.StageRecoveryAvailable)
+            {
+                FSGS.Log("Adding event");
+                StageRecoveryManager.AddRecoverySuccessEvent(success);
+            }
             
+        }
+
+        void success(Vessel v, Dictionary<string, int> parts)
+        {
+            FSGS.Log("Got " + v.vesselName);
+            for (int i=0; i< parts.Count; i++)
+            {
+                FSGS.Log("Got " + parts.Keys.ElementAt(i) + "x" + parts.Values.ElementAt(i));
+            }
         }
 
         public void FixedUpdate()

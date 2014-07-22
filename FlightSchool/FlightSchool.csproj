@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FlightSchool</RootNamespace>
     <AssemblyName>FlightSchool</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,12 +51,13 @@
     <Compile Include="FS_GUI.cs" />
     <Compile Include="FS_PersistenceData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StageRecoveryWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem Set the Variables we need
 echo Finding KSP
-set GAMEPATH="C:\Program Files (x86)\Steam\SteamApps\common\Kerbal Space Program"
+set GAMEPATH="C:\Program Files\Steam\SteamApps\common\Kerbal Space Program"
 
 echo Gamepath: %25GAMEPATH%25
 set DestPath="%25GAMEPATH%25\GameData\FlightSchool"

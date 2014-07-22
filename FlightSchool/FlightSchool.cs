@@ -17,6 +17,15 @@ namespace FlightSchool
             RenderingManager.AddToPostDrawQueue(0, OnDraw);
         }
 
+        public void OnDestroy()
+        {
+           /* if (StageRecoveryWrapper.StageRecoveryAvailable)
+            {
+                StageRecoveryWrapper.RemoveRecoverySuccessEvent(success);
+                StageRecoveryWrapper.RemoveRecoveryFailureEvent(success);
+            }*/
+        }
+
         private void OnDraw()
         {
             FSGS.gui.SetGUIPositions(OnWindow);
@@ -31,11 +40,10 @@ namespace FlightSchool
         {
            // FS_PersistenceModuleSaver.ApplyScenarioToSave();
             FSGS.gui.showMainGUI = true;
-            FSGS.Log(StageRecoveryManager.StageRecoveryAvailable);
-            if (StageRecoveryManager.StageRecoveryAvailable)
+            if (StageRecoveryWrapper.StageRecoveryAvailable)
             {
-                FSGS.Log("Adding event");
-                StageRecoveryManager.AddRecoverySuccessEvent(success);
+                StageRecoveryWrapper.AddRecoverySuccessEvent(success);
+                StageRecoveryWrapper.AddRecoveryFailureEvent(success);
             }
             
         }

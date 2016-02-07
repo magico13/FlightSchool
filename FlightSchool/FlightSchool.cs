@@ -12,6 +12,10 @@ namespace FlightSchool
     {
         List<CourseTemplate> CourseTemplates = new List<CourseTemplate>();
         List<CourseTemplate> OfferedCourses = new List<CourseTemplate>();
+        List<ActiveCourse> ActiveCourses = new List<ActiveCourse>();
+
+        double LastUT = 0;
+
         public void Start()
         {
             FindAllCourseConfigs(); //find all applicable configs
@@ -21,7 +25,16 @@ namespace FlightSchool
 
         public void FixedUpdate()
         {
-            
+            double UT = Planetarium.GetUniversalTime();
+            if (LastUT <= 0)
+                LastUT = UT;
+            double dT = UT - LastUT;
+            foreach (ActiveCourse course in ActiveCourses)
+            {
+                course.ProgressTime(dT);
+            }
+
+            LastUT = UT;
         }
 
         public void FindAllCourseConfigs()

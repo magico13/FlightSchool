@@ -36,9 +36,23 @@ namespace FlightSchool
             return Completed;
         }
 
-        public void CompleteCourse()
+        protected void CompleteCourse()
         {
             //assign rewards to all kerbals and set them to free
+            Teacher.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+            foreach (ProtoCrewMember student in Students)
+                student.rosterStatus = ProtoCrewMember.RosterStatus.Available;
+        }
+
+        public void StartCourse()
+        {
+            //set all the kerbals to unavailable and begin tracking time
+            if (Started)
+                return;
+            Started = true;
+            Teacher.rosterStatus = ProtoCrewMember.RosterStatus.Assigned;
+            foreach (ProtoCrewMember student in Students)
+                student.rosterStatus = ProtoCrewMember.RosterStatus.Assigned;
         }
     }
 }

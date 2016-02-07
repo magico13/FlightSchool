@@ -27,6 +27,7 @@ namespace FlightSchool
         ActiveCourse selectedCourse = null;
         Vector2 currentStudentList = new Vector2();
         Vector2 availableKerbalList = new Vector2();
+        double totalCost = 0;
         protected void DrawMainGUI(int windowID)
         {
             GUILayout.BeginVertical();
@@ -47,6 +48,7 @@ namespace FlightSchool
                     if (GUILayout.Button(template.id + " - " + template.name))
                     {
                         selectedCourse = new ActiveCourse(template);
+                        totalCost = selectedCourse.CalculateCost();
                     }
                 }
             }
@@ -93,9 +95,9 @@ namespace FlightSchool
                         for (int i=0; i< validTeachers.Count; i++)
                         {
                             ProtoCrewMember pcm = validTeachers[i];
-                            options[i] = new DialogOption(pcm.name + ": " + pcm.trait + " " + pcm.experienceLevel, () => { selectedCourse.SetTeacher(pcm); });
+                            options[i] = new DialogOption(pcm.name + ": " + pcm.trait + " " + pcm.experienceLevel, () => { selectedCourse.SetTeacher(pcm); totalCost = selectedCourse.CalculateCost(); });
                         }
-                        options[validTeachers.Count] = new DialogOption("Guest Lecturer", () => { selectedCourse.Teacher = null; });
+                        options[validTeachers.Count] = new DialogOption("Guest Lecturer", () => { selectedCourse.Teacher = null; totalCost = selectedCourse.CalculateCost(); });
                         MultiOptionDialog diag = new MultiOptionDialog("Select a kerbal to lead this course:", "Select Teacher", null, options);
                         PopupDialog.SpawnPopupDialog(diag, false, GUI.skin);
                     }
@@ -114,6 +116,7 @@ namespace FlightSchool
                         {
                             selectedCourse.Students.RemoveAt(i);
                             i--;
+                            totalCost = selectedCourse.CalculateCost();
                         }
 
                     }
@@ -139,6 +142,7 @@ namespace FlightSchool
                             if (GUILayout.Button(student.name + ": " + student.trait + " " + student.experienceLevel))
                             {
                                 selectedCourse.AddStudent(student);
+                                totalCost = selectedCourse.CalculateCost();
                             }
                         }
 
@@ -147,7 +151,13 @@ namespace FlightSchool
                     GUILayout.EndVertical();
                     GUILayout.EndHorizontal();
 
+                    //double totalCost = selectedCourse.costBase + (selectedCourse.costTeacher * (selectedCourse.Teacher != null ? 0 : 1)) + (selectedCourse.Students.Count * selectedCourse.costSeat);
 
+                    if (GUILayout.Button("Start Course: √"+Math.Ceiling(totalCost)))
+                    {
+                        selectedCourse.StartCourse();
+                        FlightSchool.Instance.ActiveCourses.Add(selectedCourse);
+                    }
 
                 }
             }

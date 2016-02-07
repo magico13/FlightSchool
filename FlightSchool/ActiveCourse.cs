@@ -17,6 +17,7 @@ namespace FlightSchool
 
         public ActiveCourse(CourseTemplate template)
         {
+            sourceNode = template.sourceNode;
             PopulateFromSourceNode(new Dictionary<string, string>(), template.sourceNode);
         }
 
@@ -132,13 +133,14 @@ namespace FlightSchool
             {
                 foreach (KeyValuePair<string, string> kvp in addlVariables)
                 {
-                    if (!Variables.ContainsKey(kvp.Key))
-                        Variables.Add(kvp.Key, kvp.Value);
+                    Utilities.AddOrReplaceInDictionary<string, string>(Variables, kvp.Key, kvp.Value);
                 }
             }
             if (Teacher != null)
             {
-                Variables.Add("TeachLvl", Teacher.experienceLevel.ToString());
+                Utilities.AddOrReplaceInDictionary<string, string>(Variables, "TeachLvl", Teacher.experienceLevel.ToString());
+                
+               // Variables.Add("TeachLvl", Teacher.experienceLevel.ToString());
                 int classID = -1;
                 if (Teacher.trait == "Pilot")
                     classID = 0;
@@ -146,10 +148,15 @@ namespace FlightSchool
                     classID = 1;
                 else if (Teacher.trait == "Scientist")
                     classID = 2;
-                Variables.Add("TeachClass", classID.ToString());
+                Utilities.AddOrReplaceInDictionary<string, string>(Variables, "TeachClass", classID.ToString());
+                //Variables.Add("TeachClass", classID.ToString());
             }
-            Variables.Add("FilledSeats", Students.Count.ToString());
+            Utilities.AddOrReplaceInDictionary<string, string>(Variables, "FilledSeats", Students.Count.ToString());
+           // UnityEngine.Debug.Log("FilledSeats: " + Variables["FilledSeats"]);
+            //Variables.Add("FilledSeats", Students.Count.ToString());
 
+
+           // UnityEngine.Debug.Log(ConfigNodeUtils.GetValueOrDefault(sourceNode, "costBase", "0"));
             //recalculate the baseCost, seatCost, and teacherCost
             costBase = MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(sourceNode, "costBase", "0"), Variables);
             costSeat = MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(sourceNode, "costSeat", "0"), Variables);
@@ -158,7 +165,9 @@ namespace FlightSchool
             else
                 costTeacher = MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(sourceNode, "costTeacher", "0"), Variables);
 
-            return Math.Max(costBase + costTeacher + (costSeat * Students.Count), 0.0);
+            double cost = costBase + costTeacher + (costSeat * Students.Count);
+          //  UnityEngine.Debug.Log("Course cost: " + cost);
+            return Math.Max(cost, 0.0);
         }
     }
 }

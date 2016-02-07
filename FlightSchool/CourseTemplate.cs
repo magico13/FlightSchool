@@ -31,8 +31,11 @@ namespace FlightSchool
     {
         public ConfigNode sourceNode = new ConfigNode();
 
+        public Dictionary<string, string> Variables = new Dictionary<string, string>();
+
         public string id = "";
         public string name = "";
+        public string description = "";
 
         public bool Available = true; //Whether the course is currently being offered
 
@@ -80,8 +83,11 @@ namespace FlightSchool
             if (source == null)
                 source = sourceNode;
 
+            Variables = variables;
+
             id = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "id"), variables);
             name = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "name"), variables);
+            description = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "description"), variables);
 
             bool.TryParse(MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "Available", "true"), variables), out Available);
 

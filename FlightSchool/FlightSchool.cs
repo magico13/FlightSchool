@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
+using System.IO;
 
 namespace FlightSchool
 {
@@ -29,9 +30,14 @@ namespace FlightSchool
             if (LastUT <= 0)
                 LastUT = UT;
             double dT = UT - LastUT;
-            foreach (ActiveCourse course in ActiveCourses)
+            for (int i = 0; i < ActiveCourses.Count; i++ )
             {
-                course.ProgressTime(dT);
+                ActiveCourse course = ActiveCourses[i];
+                if (course.ProgressTime(dT)) //returns true when the course completes
+                {
+                    ActiveCourses.RemoveAt(i);
+                    i--;
+                }
             }
 
             LastUT = UT;
@@ -41,6 +47,17 @@ namespace FlightSchool
         {
             CourseTemplates.Clear();
             //find all configs and save them
+            string defaultPath = KSPUtil.ApplicationRootPath + "/GameData/FlightSchool/Courses/";
+            foreach (string file in Directory.GetFiles(defaultPath, "*.cfg"))
+            {
+                ConfigNode node = ConfigNode.Load(file);
+                foreach (ConfigNode course in node.GetNodes("FS_COURSE"))
+                {
+                    CourseTemplates.Add(new CourseTemplate(course));
+                }
+            }
+
+            //fire an event to let other mods add their configs
         }
 
         public void GenerateOfferedCourses() //somehow provide some variable options here?
@@ -54,7 +71,7 @@ namespace FlightSchool
                     OfferedCourses.Add(duplicate);
             }
 
-            //fire an event to let other mods add available courses
+            //fire an event to let other mods add available courses (where they can pass variables through then)
         }
 
     }

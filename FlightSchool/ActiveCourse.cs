@@ -20,15 +20,26 @@ namespace FlightSchool
             PopulateFromSourceNode(new Dictionary<string, string>(), template.sourceNode);
         }
 
+        public bool MeetsTeacherReqs(ProtoCrewMember teacher)
+        {
+            return (teacher.rosterStatus == ProtoCrewMember.RosterStatus.Available && teacher.experienceLevel >= teachMinLevel && (teachClasses.Length == 0 || teachClasses.Contains(teacher.trait)) && !Students.Contains(teacher));
+        }
+
         public void SetTeacher(ProtoCrewMember teacher)
         {
-            Teacher = teacher;
+            if (MeetsTeacherReqs(teacher))
+                Teacher = teacher;
         }
         public void SetTeacher(string teacher)
         {
-            Teacher = HighLogic.CurrentGame.CrewRoster[teacher];
+            SetTeacher(HighLogic.CurrentGame.CrewRoster[teacher]);
         }
 
+        public bool MeetsStudentReqs(ProtoCrewMember student)
+        {
+            return (student.type == (ProtoCrewMember.KerbalType.Crew) && (seatMax <= 0 || Students.Count < seatMax) && student.rosterStatus == ProtoCrewMember.RosterStatus.Available && student.experienceLevel >= minLevel &&
+                student.experienceLevel <= maxLevel && (classes.Length == 0 || classes.Contains(student.trait)) && !Students.Contains(student) && student != Teacher);
+        }
         public void AddStudent(ProtoCrewMember student)
         {
             if (seatMax <= 0 || Students.Count < seatMax)

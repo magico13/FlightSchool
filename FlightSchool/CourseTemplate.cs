@@ -93,15 +93,26 @@ namespace FlightSchool
 
             List<string> tmpList = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "activePreReqs"), variables).Split(',').ToList();
             tmpList.ForEach((s) => s.Trim());
-            activePreReqs = tmpList.ToArray();
+            if (!tmpList.TrueForAll(s => s == ""))
+                activePreReqs = tmpList.ToArray();
+            else
+                activePreReqs = new string[] { };
+            //activePreReqs = tmpList.ToArray();
 
             tmpList = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "preReqs"), variables).Split(',').ToList();
             tmpList.ForEach((s) => s.Trim());
-            preReqs = tmpList.ToArray();
+            if (!tmpList.TrueForAll(s => s == ""))
+                preReqs = tmpList.ToArray();
+            else
+                preReqs = new string[] { };
 
             tmpList = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "conflicts"), variables).Split(',').ToList();
             tmpList.ForEach((s) => s.Trim());
-            conflicts = tmpList.ToArray();
+            //conflicts = tmpList.ToArray();
+            if (!tmpList.TrueForAll(s => s == ""))
+                conflicts = tmpList.ToArray();
+            else
+                conflicts = new string[] { };
 
             time = MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(source, "time", "0"), variables);
             bool.TryParse(MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "required", "false"), variables), out required);
@@ -117,7 +128,11 @@ namespace FlightSchool
 
             tmpList = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "classes"), variables).Split(',').ToList();
             tmpList.ForEach((s) => s.Trim());
-            classes = tmpList.ToArray();
+            //classes = tmpList.ToArray();
+            if (!tmpList.TrueForAll(s => s == ""))
+                classes = tmpList.ToArray();
+            else
+                classes = new string[] { };
 
             minLevel = (int)(MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(source, "minLevel", "0"), variables));
             maxLevel = (int)(MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(source, "maxLevel", "5"), variables));
@@ -131,7 +146,10 @@ namespace FlightSchool
             costTeacher = MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(source, "costTeacher", "0"), variables);
             tmpList = MathParsing.ReplaceMathVariables(ConfigNodeUtils.GetValueOrDefault(source, "teachClasses"), variables).Split(',').ToList();
             tmpList.ForEach((s) => s.Trim());
-            teachClasses = tmpList.ToArray();
+            if (!tmpList.TrueForAll(s => s == ""))
+                teachClasses = tmpList.ToArray();
+            else
+                teachClasses = new string[] { };
 
             teachMinLevel = (int)(MathParsing.ParseMath(ConfigNodeUtils.GetValueOrDefault(source, "teachMinLevel", "0"), variables));
 

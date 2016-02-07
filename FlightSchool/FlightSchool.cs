@@ -11,14 +11,35 @@ namespace FlightSchool
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class FlightSchool : MonoBehaviour
     {
-        List<CourseTemplate> CourseTemplates = new List<CourseTemplate>();
-        List<CourseTemplate> OfferedCourses = new List<CourseTemplate>();
-        List<ActiveCourse> ActiveCourses = new List<ActiveCourse>();
+        public static FlightSchool Instance;
+
+        public List<CourseTemplate> CourseTemplates = new List<CourseTemplate>();
+        public List<CourseTemplate> OfferedCourses = new List<CourseTemplate>();
+        public List<ActiveCourse> ActiveCourses = new List<ActiveCourse>();
 
         double LastUT = 0;
 
+        FSGUI GUI = new FSGUI();
+
+        public void Awake()
+        {
+            RenderingManager.AddToPostDrawQueue(0, OnDraw);
+        }
+
+        private void OnDraw()
+        {
+            GUI.SetGUIPositions(OnWindow);
+        }
+
+        private void OnWindow(int windowID)
+        {
+            GUI.DrawGUIs(windowID);
+        }
+
+
         public void Start()
         {
+            Instance = this;
             FindAllCourseConfigs(); //find all applicable configs
             GenerateOfferedCourses(); //turn the configs into offered courses
 
@@ -56,7 +77,7 @@ namespace FlightSchool
                     CourseTemplates.Add(new CourseTemplate(course));
                 }
             }
-
+            Debug.Log("[FS] Found " + CourseTemplates.Count + " courses.");
             //fire an event to let other mods add their configs
         }
 
@@ -71,6 +92,7 @@ namespace FlightSchool
                     OfferedCourses.Add(duplicate);
             }
 
+            Debug.Log("[FS] Offering " + OfferedCourses.Count + " courses.");
             //fire an event to let other mods add available courses (where they can pass variables through then)
         }
 

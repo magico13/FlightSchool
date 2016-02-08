@@ -87,7 +87,7 @@ namespace FlightSchool
             foreach (CourseTemplate template in CourseTemplates)
             {
                 CourseTemplate duplicate = new CourseTemplate(template.sourceNode); //creates a duplicate so the initial template is preserved
-                duplicate.PopulateFromSourceNode(null);
+                duplicate.PopulateFromSourceNode(new Dictionary<string, string>());
                 if (duplicate.Available)
                     OfferedCourses.Add(duplicate);
             }

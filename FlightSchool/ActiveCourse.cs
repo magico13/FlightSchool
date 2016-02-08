@@ -21,6 +21,78 @@ namespace FlightSchool
             PopulateFromSourceNode(new Dictionary<string, string>(), template.sourceNode);
         }
 
+        public ActiveCourse(ConfigNode node)
+        {
+            FromConfigNode(node);
+        }
+
+        public ConfigNode AsConfigNode()
+        {
+            //save the source node, the variables, the teacher name, the student names, Started/Completed and the elapsed time
+            ConfigNode node = new ConfigNode("ACTIVE_COURSE");
+            node.AddValue("id", id);
+            node.AddValue("name", name);
+            node.AddValue("elapsedTime", elapsedTime);
+            node.AddValue("Started", Started);
+            node.AddValue("Completed", Completed);
+            node.AddValue("teacher", Teacher != null ? Teacher.name : "NA");
+            ConfigNode studentNode = new ConfigNode("STUDENTS");
+            foreach (ProtoCrewMember student in Students)
+                studentNode.AddValue("student", student.name);
+            node.AddNode("STUDENTS", studentNode);
+
+            ConfigNode variableNode = new ConfigNode("VARIABLES");
+            foreach (KeyValuePair<string, string> kvp in Variables)
+            {
+                variableNode.AddValue(kvp.Key, kvp.Value);
+            }
+            node.AddNode("VARIABLES", variableNode);
+            node.AddNode("SOURCE_NODE", sourceNode);
+
+            return node;
+        }
+
+        public void FromConfigNode(ConfigNode node)
+        {
+            double.TryParse(ConfigNodeUtils.GetValueOrDefault(node, "elapsedTime", "0"), out elapsedTime);
+            bool.TryParse(ConfigNodeUtils.GetValueOrDefault(node, "Started", "true"), out Started);
+            bool.TryParse(ConfigNodeUtils.GetValueOrDefault(node, "Completed", "false"), out Completed);
+
+            string teacherName = ConfigNodeUtils.GetValueOrDefault(node, "teacher", "NA");
+            if (teacherName != "NA" && HighLogic.CurrentGame.CrewRoster.Exists(teacherName))
+            {
+                Teacher = HighLogic.CurrentGame.CrewRoster[teacherName];
+            }
+
+            //load students
+            ConfigNode studentNode = node.GetNode("STUDENTS");
+            if (studentNode != null)
+            {
+                Students.Clear();
+                foreach (ConfigNode.Value val in studentNode.values)
+                {
+                    if (HighLogic.CurrentGame.CrewRoster.Exists(val.value))
+                    {
+                        Students.Add(HighLogic.CurrentGame.CrewRoster[val.value]);
+                    }
+                }
+            }
+
+            //load variables
+            ConfigNode variableNode = node.GetNode("VARIABLES");
+            if (variableNode != null)
+            {
+                foreach (ConfigNode.Value val in variableNode.values)
+                {
+                    Utilities.AddOrReplaceInDictionary(Variables, val.name, val.value);
+                }
+            }
+
+            sourceNode = node.GetNode("SOURCE_NODE");
+
+            PopulateFromSourceNode(Variables, sourceNode);
+        }
+
         public bool MeetsTeacherReqs(ProtoCrewMember teacher)
         {
             return (teacher.rosterStatus == ProtoCrewMember.RosterStatus.Available && teacher.experienceLevel >= teachMinLevel && (teachClasses.Length == 0 || teachClasses.Contains(teacher.trait)) && !Students.Contains(teacher));
@@ -87,9 +159,15 @@ namespace FlightSchool
             return Completed;
         }
 
-        protected void CompleteCourse()
+        public void CompleteCourse()
         {
+
             //assign rewards to all kerbals and set them to free
+            if (Completed)
+            {
+                //assign rewards
+            }
+
             Teacher.rosterStatus = ProtoCrewMember.RosterStatus.Available;
             foreach (ProtoCrewMember student in Students)
                 student.rosterStatus = ProtoCrewMember.RosterStatus.Available;

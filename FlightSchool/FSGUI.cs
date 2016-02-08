@@ -78,6 +78,8 @@ namespace FlightSchool
 
                     GUILayout.Label(selectedCourse.description);
 
+                    GUILayout.Label("Course length: " + MagiCore.Utilities.GetFormattedTime(selectedCourse.time, true));
+
                     //select the teacher
                     GUILayout.BeginHorizontal();
                     GUILayout.FlexibleSpace();
@@ -153,17 +155,80 @@ namespace FlightSchool
 
                     //double totalCost = selectedCourse.costBase + (selectedCourse.costTeacher * (selectedCourse.Teacher != null ? 0 : 1)) + (selectedCourse.Students.Count * selectedCourse.costSeat);
 
-                    if (GUILayout.Button("Start Course: √"+Math.Ceiling(totalCost)))
+
+                    
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button("Start Course: √"+Math.Ceiling(totalCost), GUILayout.ExpandWidth(false)))
                     {
                         selectedCourse.StartCourse();
                         FlightSchool.Instance.ActiveCourses.Add(selectedCourse);
+                        selectedCourse = null;
                     }
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
 
                 }
             }
             else
             {
+                //An active course has been selected
+                if (selectedCourse != null)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    GUILayout.Label(selectedCourse.id + " - " + selectedCourse.name);
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
 
+                    GUILayout.Label(selectedCourse.description);
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    GUILayout.Label("Teacher: " + (selectedCourse.Teacher != null ? (selectedCourse.Teacher.name + " (" + selectedCourse.Teacher.trait + " " + selectedCourse.Teacher.experienceLevel + ")") : "Guest Lecturer"), GUILayout.ExpandWidth(false));
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+
+                    GUILayout.Label("Time remaining: "+MagiCore.Utilities.GetFormattedTime(selectedCourse.time-selectedCourse.elapsedTime, true));
+                    GUILayout.Label(Math.Round(100*selectedCourse.elapsedTime/selectedCourse.time, 1) + "% complete");
+
+                    //scroll list of all students
+                    GUILayout.Label("Students:");
+                    currentStudentList = GUILayout.BeginScrollView(currentStudentList);
+                    for (int i = 0; i < selectedCourse.Students.Count; i++ )
+                    {
+                        ProtoCrewMember student = selectedCourse.Students[i];
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label(student.name+": "+student.trait+" "+student.experienceLevel);
+                        if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
+                        {
+                            DialogOption[] options = new DialogOption[2];
+                            options[0] = new DialogOption("Yes", () => {selectedCourse.Students.Remove(student); student.rosterStatus = ProtoCrewMember.RosterStatus.Available;});
+                            options[1] = new DialogOption("No", ()=>{});
+
+                            MultiOptionDialog diag = new MultiOptionDialog("Are you sure you want "+student.name+ " to drop this course?", "Drop Course?", null, options);
+                            PopupDialog.SpawnPopupDialog(diag, false, GUI.skin);
+
+                            i--;
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                    GUILayout.EndScrollView();
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button("Cancel Course", GUILayout.ExpandWidth(false)))
+                    {
+                        DialogOption[] options = new DialogOption[2];
+                        options[0] = new DialogOption("Yes", () => { selectedCourse.CompleteCourse(); FlightSchool.Instance.ActiveCourses.Remove(selectedCourse); selectedCourse = null; });
+                        options[1] = new DialogOption("No", ()=>{});
+
+                        MultiOptionDialog diag = new MultiOptionDialog("Are you sure you want to cancel this course?", "Cancel Course?", null, options);
+                        PopupDialog.SpawnPopupDialog(diag, false, GUI.skin);
+                    }
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+                }
             }
             GUILayout.EndVertical();
 
